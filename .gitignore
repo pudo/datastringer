@@ -1,0 +1,7 @@
+*.pyc
+*.DS_Store
+*.sqlite3
+*.egg-info
+venv/
+build/
+dist/
