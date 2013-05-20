@@ -34,7 +34,6 @@ class DataStringer(object):
             'Accept': 'application/json',
             'Authorization': 'ApiKey %s' % self.api_key,
         }
-        print [urljoin(self.host, path)]
         res = requests.put(urljoin(self.host, path),
                            data=json.dumps(data),
                            params=params,
