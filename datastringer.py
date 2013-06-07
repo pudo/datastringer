@@ -1,7 +1,11 @@
 import requests
+from datetime import datetime
 from urlparse import urljoin
 import os
 import json
+
+DEFAULT_HOST = os.environ.get('DATAWIRE_HOST', 'http://datawi.re')
+DEFAULT_KEY = os.environ.get('DATAWIRE_SECRET')
 
 
 class DataStringerException(Exception):
@@ -13,38 +17,39 @@ class DataStringer(object):
     (``frames``) to the datawi.re service via its REST API. """
 
     def __init__(self,
-                 host='http://datawi.re',
+                 host=None,
                  api_key=None,
                  service=None,
                  event=None,
                  sync=False):
-        self.host = host
-        if api_key is None:
-            api_key = os.environ.get('DATAWIRE_SECRET')
-        self.api_key = api_key
+        self.host = host or DEFAULT_HOST
+        self.api_key = api_key or DEFAULT_KEY
         self.service = service
         self.event = event
         self.sync = sync
 
-    def _put(self, path, data, params):
+    def _put(self, path, data, params, headers=None):
         if self.api_key is None:
             raise DataStringerException('No API key is configured.')
-        headers = {
+        _headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'Authorization': 'ApiKey %s' % self.api_key,
         }
+        if headers is not None:
+            _headers.update(headers)
         res = requests.put(urljoin(self.host, path),
                            data=json.dumps(data),
                            params=params,
-                           headers=headers)
+                           headers=_headers)
         data = res.json()
         if res.status_code != 200:
             message = '%(name)s: %(description)s' % data
             raise DataStringerException(message)
         return data
 
-    def submit(self, frame, service=None, event=None, sync=None):
+    def submit(self, frame, service=None, event=None, sync=None,
+               event_at=None, source_url=None, details_url=None):
         service = service or self.service
         if service is None:
             raise DataStringerException('No service is configured.')
@@ -52,8 +57,18 @@ class DataStringer(object):
         if event is None:
             raise DataStringerException('No event is configured.')
         sync = sync if sync is not None else self.sync
+
+        headers = {
+            'X-Source-Location': source_url,
+            'X-Details-Location': details_url
+        }
+        if event_at is not None:
+            if isinstance(event_at, datetime):
+                event_at = event_at.isoformat()
+            headers['X-Event-At'] = event_at
+
         path = '/api/1/frames/%s/%s' % (service, event)
-        return self._put(path, frame, {'sync': sync})
+        return self._put(path, frame, {'sync': sync}, headers=headers)
 
     def __repr__(self):
         return '<DataStringer(%s,%s,%s)>' % (self.host,
