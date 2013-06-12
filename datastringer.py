@@ -49,7 +49,7 @@ class DataStringer(object):
         return data
 
     def submit(self, frame, service=None, event=None, sync=None,
-               event_at=None, source_url=None, details_url=None):
+               action_at=None, source_url=None, details_url=None):
         service = service or self.service
         if service is None:
             raise DataStringerException('No service is configured.')
@@ -62,10 +62,10 @@ class DataStringer(object):
             'X-Source-Location': source_url,
             'X-Details-Location': details_url
         }
-        if event_at is not None:
-            if isinstance(event_at, datetime):
-                event_at = event_at.isoformat()
-            headers['X-Event-At'] = event_at
+        if action_at is not None:
+            if isinstance(action_at, datetime):
+                action_at = action_at.isoformat()
+            headers['X-Action-Time'] = action_at
 
         path = '/api/1/frames/%s/%s' % (service, event)
         return self._put(path, frame, {'sync': sync}, headers=headers)
