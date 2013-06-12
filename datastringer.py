@@ -4,7 +4,7 @@ from urlparse import urljoin
 import os
 import json
 
-DEFAULT_HOST = os.environ.get('DATAWIRE_HOST', 'http://datawi.re')
+DEFAULT_HOST = os.environ.get('DATAWIRE_HOST', 'http://api.datawi.re')
 DEFAULT_KEY = os.environ.get('DATAWIRE_SECRET')
 
 

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='datastringer',
-    version='0.1.1',
+    version='0.1.2',
     description="Client for datawi.re, submits data to the data wire service.",
     long_description="",
     classifiers=[],
