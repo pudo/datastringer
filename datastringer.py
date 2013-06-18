@@ -63,8 +63,8 @@ class DataStringer(object):
         sync = sync if sync is not None else self.sync
 
         headers = {
-            'X-Source-Location': source_url,
-            'X-Details-Location': details_url
+            'X-Source-Location': source_url.encode('utf-8'),
+            'X-Details-Location': details_url.encode('utf-8')
         }
         if action_at is not None:
             if isinstance(action_at, datetime):
