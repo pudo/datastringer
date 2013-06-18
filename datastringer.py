@@ -1,4 +1,5 @@
 import requests
+from requests.exceptions import RequestException
 from datetime import datetime
 from urlparse import urljoin
 import os
@@ -38,11 +39,14 @@ class DataStringer(object):
         }
         if headers is not None:
             _headers.update(headers)
-        res = requests.put(urljoin(self.host, path),
-                           data=json.dumps(data),
-                           params=params,
-                           headers=_headers)
-        data = res.json()
+        try:
+            res = requests.put(urljoin(self.host, path),
+                               data=json.dumps(data),
+                               params=params,
+                               headers=_headers)
+            data = res.json()
+        except RequestException, ex:
+            raise DataStringerException(unicode(ex))
         if res.status_code != 200:
             message = '%(name)s: %(description)s' % data
             raise DataStringerException(message)
